@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Xcy7e\PhpToolbox\Library;
+
+/**
+ * Class and object reflection utilities.
+ */
+class ReflectionTool
+{
+
+	/**
+	 * Returns the class name of the given class or object (without namespace).
+	 */
+	public static function getClassName(string|object $class): string|null
+	{
+		try {
+			$path = explode('\\', get_class($class));
+			return array_pop($path);
+		} catch (\Throwable) {
+			return null;
+		}
+	}
+
+	/**
+	 * Returns all methods of the given class that start with `$setOrGet`.
+	 */
+	public static function getMethods($entity, string $setOrGet = 'get'): array
+	{
+		return array_filter(get_class_methods($entity), static function ($method) use ($setOrGet) {
+			return str_starts_with($method, $setOrGet);
+		});
+	}
+
+	/**
+	 * Converts a camelCase method name to snake_case, e.g. `getExampleProperty` => `example_property`, `setFirstname` => `firstname`
+	 */
+	public static function getSnakeCase($method, string $setOrGet = 'get'): string
+	{
+		$method = strtolower(ltrim(preg_replace('/[A-Z]([A-Z](?![a-z]))*/', '_$0', $method), '_'));
+		return str_starts_with($method, $setOrGet . '_') ? substr($method, 4) : $method;
+	}
+
+}
