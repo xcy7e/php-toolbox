@@ -35,7 +35,6 @@ class PathToolTest extends TestCase
 		$grp = PathTool::getEncPathGroup($dir);
 		// getEncPathGroup returns numeric-indexed array [1=>aa,2=>bb,3=>cc]
 		$this->assertSame(['aa', 'bb', 'cc'], array_values($grp));
-
 		$this->assertFalse(PathTool::isHashPath('/aa/bb/ccc/')); // last is 3 chars
 	}
 
