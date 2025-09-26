@@ -1,13 +1,15 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Xcy7e\PhpToolbox\Library;
 
 /**
  * Class and object reflection utilities.
+ *
+ * @package Xcy7e\PhpToolbox\Library
+ * @author  Jonathan Riedmair <jonathan@xcy7e.pro>
  */
-class ReflectionTool
+final class ReflectionTool
 {
 
 	/**

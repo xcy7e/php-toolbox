@@ -1,13 +1,14 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Xcy7e\PhpToolbox\Library;
 
 /**
  * String masking utilities.
+ *
+ * @package Xcy7e\PhpToolbox\Library
+ * @author  Jonathan Riedmair <jonathan@xcy7e.pro>
  */
-class MaskingTool
+final class MaskingTool
 {
 
 	/**

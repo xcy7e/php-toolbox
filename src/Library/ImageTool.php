@@ -1,19 +1,18 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Xcy7e\PhpToolbox\Library;
 
-use Imagick;
-use ImagickException;
 use Imagine\Imagick\Imagine;
 use Imagine\Image\Box;
 use Symfony\Component\HttpFoundation\File\File;
 
 /**
  * Image manipulation utilities.
+ *
+ * @package Xcy7e\PhpToolbox\Library
+ * @author  Jonathan Riedmair <jonathan@xcy7e.pro>
  */
-class ImageTool
+final class ImageTool
 {
 
 	/**
@@ -77,31 +76,32 @@ class ImageTool
 	/**
 	 * Scales an image down if necessary, according to `$maxWidth` and `$maxHeight`
 	 *
-	 * **Overrides the file `$file`**
+	 * Overrides the file `$file` when resizing occurs.
 	 *
-	 * @param File $file Absolute path to file
-	 * @param int  $maxWidth
-	 * @param int  $maxHeight
-	 * @return bool                Indicates if the file was changed
-	 * @throws ImagickException
+	 * @param File $file      Absolute path to file
+	 * @param int  $maxWidth  Maximum allowed width
+	 * @param int  $maxHeight Maximum allowed height
+	 * @return bool           Indicates if the file was changed (resized)
 	 */
 	public static function reduceResolutionIfNecessary(File $file, int $maxWidth, int $maxHeight): bool
 	{
-		$image = new Imagick($file->getPathname());
-		if ($image->getImageWidth() > $image->getImageHeight()) {
-			// Landscape
-			if ($image->getImageWidth() > $maxWidth) {
-				ImageTool::resize($file->getPathname(), $maxWidth, $maxHeight);
-				return true;
-			}
-		} elseif ($image->getImageWidth() < $image->getImageHeight()) {
-			// Portrait
-			if ($image->getImageHeight() > $maxWidth) {
-				ImageTool::resize($file->getPathname(), $maxHeight, $maxWidth);
-				return true;
-			}
+		$path = $file->getPathname();
+		$size = @getimagesize($path);
+		if (!is_array($size) || !isset($size[0], $size[1])) {
+			// Unable to determine size (possibly invalid image); do nothing gracefully
+			return false;
 		}
-		return false;
+
+		[$width, $height] = [$size[0], $size[1]];
+
+		// If already within bounds, nothing to do
+		if ($width <= $maxWidth && $height <= $maxHeight) {
+			return false;
+		}
+
+		// Resize within the bounding box
+		ImageTool::resize($path, $maxWidth, $maxHeight);
+		return true;
 	}
 
 }

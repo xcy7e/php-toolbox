@@ -1,21 +1,23 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Xcy7e\PhpToolbox\Library;
 
 /**
  * Directory path creation and analyzation utilities.
+ *
+ * @package Xcy7e\PhpToolbox\Library
+ * @author  Jonathan Riedmair <jonathan@xcy7e.pro>
  */
-class PathTool
+final class PathTool
 {
 
 	/**
 	 * Generates a directory path from an array of path segments
 	 */
-	public static function buildPath(array $pathSegments):string
+	public static function buildPath(array $pathSegments): string
 	{
 		$path = '';
-		foreach($pathSegments as $segment) {
+		foreach ($pathSegments as $segment) {
 			$path .= DIRECTORY_SEPARATOR . $segment;
 		}
 
@@ -25,7 +27,7 @@ class PathTool
 		return preg_replace($regexPattern, $replaceStr, $path);
 	}
 
-	public static function extractCategoryDirSuffix(string $pathname):string
+	public static function extractCategoryDirSuffix(string $pathname): string
 	{
 		preg_match('/[_]{1}[a-zA-Z]{3}/', $pathname, $matches, PREG_UNMATCHED_AS_NULL);
 		return $matches[0] ?? '';

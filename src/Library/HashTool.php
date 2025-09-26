@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Xcy7e\PhpToolbox\Library;
 
@@ -8,8 +6,11 @@ use Symfony\Component\Uid\Uuid;
 
 /**
  * Hashing and random string generation utilities.
+ *
+ * @package Xcy7e\PhpToolbox\Library
+ * @author  Jonathan Riedmair <jonathan@xcy7e.pro>
  */
-class HashTool
+final class HashTool
 {
 
 	/**
@@ -40,23 +41,23 @@ class HashTool
 		}
 
 		$alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-		$n = strlen($alphabet); // 62
-		$result = '';
+		$n        = strlen($alphabet); // 62
+		$result   = '';
 
 		try {
 			// Rejection sampling to avoid modulo bias
-			$threshold = intdiv(256, $n) * $n; // Largest multiple of $n less than or equal to 255
+			$threshold     = intdiv(256, $n) * $n; // Largest multiple of $n less than or equal to 255
 			$bytesPerBatch = max(16, $length);
 
 			while (strlen($result) < $length) {
 				$bytes = random_bytes($bytesPerBatch);
-				$len = strlen($bytes);
+				$len   = strlen($bytes);
 				for ($i = 0; $i < $len && strlen($result) < $length; $i++) {
 					$val = ord($bytes[$i]);
 					if ($val >= $threshold) {
 						continue; // reject to avoid bias
 					}
-					$idx = $val % $n;
+					$idx    = $val % $n;
 					$result .= $alphabet[$idx];
 				}
 			}

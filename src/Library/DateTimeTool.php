@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Xcy7e\PhpToolbox\Library;
 
@@ -10,8 +8,11 @@ use JetBrains\PhpStorm\ArrayShape;
 
 /**
  * DateTime utilities.
+ *
+ * @package Xcy7e\PhpToolbox\Library
+ * @author  Jonathan Riedmair <jonathan@xcy7e.pro>
  */
-class DateTimeTool
+final class DateTimeTool
 {
 
 	/**

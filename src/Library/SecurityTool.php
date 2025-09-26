@@ -1,17 +1,18 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Xcy7e\PhpToolbox\Library;
 
-use Random\RandomException;
+use Exception;
 use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Security utilities.
+ *
+ * @package Xcy7e\PhpToolbox\Library
+ * @author  Jonathan Riedmair <jonathan@xcy7e.pro>
  */
-class SecurityTool
+final class SecurityTool
 {
 
 	/**
@@ -22,7 +23,7 @@ class SecurityTool
 	 *
 	 * @param int $length Minimum length is 4
 	 * @return string The generated password.
-	 * @throws RandomException If `random_int()` fails.
+	 * @throws Exception
 	 */
 	public static function generateRandomPassword(int $length = 24): string
 	{

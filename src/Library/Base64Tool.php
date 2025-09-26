@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Xcy7e\PhpToolbox\Library;
 
@@ -10,8 +8,11 @@ use Symfony\Component\Mime\MimeTypes;
 
 /**
  * Base64 utilities.
+ *
+ * @package Xcy7e\PhpToolbox\Library
+ * @author  Jonathan Riedmair <jonathan@xcy7e.pro>
  */
-class Base64Tool
+final class Base64Tool
 {
 
 	/**
@@ -20,7 +21,7 @@ class Base64Tool
 	 * @param string $path
 	 * @return string
 	 */
-	public function base64EncodeFile(string $path): string
+	public static function base64EncodeFile(string $path): string
 	{
 		$file = (new File($path));
 		$mime = (new MimeTypes())->getMimeTypes($file->guessExtension());
@@ -88,7 +89,8 @@ class Base64Tool
 		$str = Base64Tool::stripBase64DataUriSchema($base64);
 
 		// Compare encoded decoded data-part with input data part
-		return base64_encode(base64_decode($str, true)) === $str;
+		$decoded = base64_decode($str, true);
+		return $decoded !== false && base64_encode($decoded) === $str;
 	}
 
 	/**

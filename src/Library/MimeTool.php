@@ -1,10 +1,14 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Xcy7e\PhpToolbox\Library;
 
-class MimeTool
+/**
+ * MIME type and file extension utilities.
+ *
+ * @package Xcy7e\PhpToolbox\Library
+ * @author  Jonathan Riedmair <jonathan@xcy7e.pro>
+ */
+final class MimeTool
 {
 
 	public const MIME_MAP = [
