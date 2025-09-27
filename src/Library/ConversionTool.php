@@ -2,6 +2,9 @@
 
 namespace Xcy7e\PhpToolbox\Library;
 
+
+use Normalizer;
+
 /**
  * Conversion utilities.
  *
@@ -11,102 +14,130 @@ namespace Xcy7e\PhpToolbox\Library;
 final class ConversionTool
 {
 
+	/** @var array<int,string> */
+	private const BYTE_UNITS = ['B', 'K', 'M', 'G', 'T'];
+
+	/** @var string[] */
+	private const APOSTROPHES = ["'", "’", "‘", "`", "´", "ʼ"];
+
+	/** @var array<string,string> */
+	private const TRANSLITERATION_MAP = [
+		'ß' => 'ss', 'ẞ' => 'SS',
+		'Æ' => 'AE', 'æ' => 'ae',
+		'Ø' => 'O', 'ø' => 'o',
+		'Ð' => 'D', 'ð' => 'd',
+		'Þ' => 'TH', 'þ' => 'th',
+		'Œ' => 'OE', 'œ' => 'oe',
+		'Ł' => 'L', 'ł' => 'l',
+		'Đ' => 'D', 'đ' => 'd',
+		'Ħ' => 'H', 'ħ' => 'h',
+		'Ŋ' => 'N', 'ŋ' => 'n',
+	];
+
 	/**
-	 * Converts shorthand-byte-notations into bytes, e.g. `8M` -> ~`8e+6`, `12K` -> ~`12000`
+	 * Parse shorthand byte notation like "8M" or "12K" into integer bytes.
 	 *
-	 * @param string $byteNotation
-	 * @return float|int|string
+	 * @param string $notation
+	 * @return int
 	 */
-	public static function parseByteShorthand(string $byteNotation): float|int|string
+	public static function parseShorthandToBytes(string $notation): int
 	{
-		if (is_numeric($byteNotation))
-			return $byteNotation;
-
-		$byteNotation = strtolower(trim($byteNotation));
-		$bytes        = rtrim($byteNotation, 'gmkb');
-		$notation     = str_replace($bytes, '', $byteNotation);
-
-		switch ($notation) {
-			case 't':
-			case 'tb':
-				$bytes *= 1024;
-			case 'g':
-			case 'gb':
-				$bytes *= 1024;
-			case 'm':
-			case 'mb':
-				$bytes *= 1024;
-			case 'k':
-			case 'kb':
-				$bytes *= 1024;
+		$notation = trim($notation);
+		if ($notation === '') {
+			return 0;
+		}
+		if (is_numeric($notation)) {
+			return (int)$notation;
 		}
 
-		return $bytes;
+		$normalized = strtolower($notation);
+		$valuePart  = rtrim($normalized, "tgmkb");
+		$unitPart   = substr($normalized, strlen($valuePart));
+		if ($valuePart === '' || !is_numeric($valuePart)) {
+			return 0;
+		}
+
+		$multiplier = match ($unitPart) {
+			't', 'tb' => 1024 ** 4,
+			'g', 'gb' => 1024 ** 3,
+			'm', 'mb' => 1024 ** 2,
+			'k', 'kb' => 1024,
+			'', 'b' => 1,
+			default => 1,
+		};
+
+		return (int)@round(((float)$valuePart) * $multiplier, 0, PHP_ROUND_HALF_UP);
 	}
 
 	/**
-	 * Converts a byte value into a human-readable shorthand notation, e.g. `12288` -> `12K`
+	 * Convert integer bytes into human-readable shorthand like "12K".
 	 *
-	 * @param int   $bytes
-	 * @param array $units
+	 * @param int           $bytes
+	 * @param string[]|null $units Optional override of units.
 	 * @return string
 	 */
-	public static function parseBytesToShorthandNotation(int $bytes, array $units = ['B', 'K', 'M', 'G', 'T']): string
+	public static function formatBytesShorthand(int $bytes, ?array $units = null): string
 	{
-		$exponent = (int)floor(log($bytes, 1024));
-		$power    = (string)@round($bytes / ((float)pow(1024, $exponent)), 2, PHP_ROUND_HALF_UP);
+		$units = $units ?? self::BYTE_UNITS;
 
-		return $power . $units[$exponent];
+		if ($bytes <= 0) {
+			return '0' . ($units[0] ?? 'B');
+		}
+
+		$exponent = (int)floor(log((float)$bytes, 1024));
+		$exponent = max(0, min($exponent, count($units) - 1));
+
+		$power = $bytes / (1024 ** $exponent);
+		$value = round($power, 2, PHP_ROUND_HALF_UP);
+
+		return rtrim(rtrim((string)$value, '0'), '.') . ($units[$exponent] ?? 'B');
 	}
 
 	/**
-	 * Remove apostrophes and normalize language-specific letters to their base ASCII counterparts.
+	 * Remove apostrophes and normalize language-specific letters to ASCII-like counterparts.
 	 *
-	 * Examples:
-	 *  - "côte d’ivoire" => "cote divoire" (apostrophe removed by concatenation, diacritics stripped)
-	 *  - "âäáàã" => "aaaaa"
-	 *  - "ß" => "ss", "Æ" => "AE"
-	 *
-	 * @param string $text              Input text
-	 * @param bool   $removeApostrophes Whether to remove apostrophes (', ’, ‘, `, ´, ʼ). Default true.
-	 * @return string                    Normalized text
+	 * @param string $text
+	 * @param bool   $removeApostrophes
+	 * @return string
 	 */
 	public static function stripAccents(string $text, bool $removeApostrophes = true): string
 	{
-		// Normalize to NFD (decomposed) if Normalizer is available, so accents become combining marks
-		if (function_exists('normalizer_normalize')) {
-			$text = normalizer_normalize($text, \Normalizer::FORM_D);
-		} elseif (class_exists('Normalizer')) { // polyfill may expose the class
-			/** @noinspection PhpFullyQualifiedNameUsageInspection */
-			$text = \Normalizer::normalize($text, \Normalizer::FORM_D);
-		}
-
-		// Remove combining diacritical marks
-		$text = preg_replace('/\p{Mn}+/u', '', $text ?? '');
-
-		// Map special letters that don't decompose into ASCII nicely
-		$map  = [
-			'ß' => 'ss', 'ẞ' => 'SS',
-			'Æ' => 'AE', 'æ' => 'ae',
-			'Ø' => 'O', 'ø' => 'o',
-			'Ð' => 'D', 'ð' => 'd',
-			'Þ' => 'TH', 'þ' => 'th',
-			'Œ' => 'OE', 'œ' => 'oe',
-			'Ł' => 'L', 'ł' => 'l',
-			'Đ' => 'D', 'đ' => 'd',
-			'Ħ' => 'H', 'ħ' => 'h',
-			'Ŋ' => 'N', 'ŋ' => 'n',
-		];
-		$text = strtr($text, $map);
+		$text = self::normalizeToDecomposed($text);
+		$text = self::removeCombiningMarks($text);
+		$text = strtr($text, self::TRANSLITERATION_MAP);
 
 		if ($removeApostrophes) {
-			// Remove various apostrophe-like characters by concatenating surrounding letters
-			$text = str_replace([
-				"'", "’", "‘", "`", "´", "ʼ"
-			], '', $text); // remove apostrophes entirely
+			$text = str_replace(self::APOSTROPHES, '', $text);
 		}
 
 		return $text;
+	}
+
+	/**
+	 * Normalize text to decomposed form (NFD) when possible.
+	 * @param string $text
+	 * @return string
+	 */
+	private static function normalizeToDecomposed(string $text): string
+	{
+		if (function_exists('normalizer_normalize')) {
+			return (string)normalizer_normalize($text, Normalizer::FORM_D);
+		}
+		if (class_exists(Normalizer::class)) {
+			return Normalizer::normalize($text, Normalizer::FORM_D);
+		}
+		return $text;
+	}
+
+	/**
+	 * Remove Unicode combining diacritical marks.
+	 * @param string $text
+	 * @return string
+	 */
+	private static function removeCombiningMarks(string $text): string
+	{
+		$clean = preg_replace('/\p{Mn}+/u', '', $text);
+		return $clean ?? $text;
 	}
 
 }

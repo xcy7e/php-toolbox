@@ -11,10 +11,11 @@ use Xcy7e\PhpToolbox\Library\ReflectionTool;
  */
 class ReflectionToolTest extends TestCase
 {
-    private function getSampleObject()
-    {
+    private function getSampleObject(): object
+	{
         return new class {
-            public function getName() { return 'x'; }
+            public function getName(): string
+			{ return 'x'; }
             public function setValue($v) { }
             public function ping() { }
         };

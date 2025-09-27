@@ -11,20 +11,20 @@ use Xcy7e\PhpToolbox\Library\ConversionTool;
  */
 class ConversionToolTest extends TestCase
 {
-    public function testParseByteShorthandBasic()
+    public function testParseShorthandToBytes()
     {
 		// One-Letter notation (e.g. "8M")
-        $this->assertSame(8 * 1024 * 1024, ConversionTool::parseByteShorthand('8M'));
-        $this->assertSame(12 * 1024, ConversionTool::parseByteShorthand('12K'));
-        $this->assertSame(1 * 1024 * 1024 * 1024, ConversionTool::parseByteShorthand('1G'));
-        $this->assertSame(16 * 1024, ConversionTool::parseByteShorthand(' 16k '));
+        $this->assertSame(8 * 1024 * 1024, ConversionTool::parseShorthandToBytes('8M'));
+        $this->assertSame(12 * 1024, ConversionTool::parseShorthandToBytes('12K'));
+        $this->assertSame(1 * 1024 * 1024 * 1024, ConversionTool::parseShorthandToBytes('1G'));
+        $this->assertSame(16 * 1024, ConversionTool::parseShorthandToBytes(' 16k '));
 		// Two-Letter notation (e.g. "8MB")
-		$this->assertSame(8 * 1024 * 1024, ConversionTool::parseByteShorthand('8MB'));
-		$this->assertSame(12 * 1024, ConversionTool::parseByteShorthand('12KB'));
-		$this->assertSame(1 * 1024 * 1024 * 1024, ConversionTool::parseByteShorthand('1GB'));
-		$this->assertSame(16 * 1024, ConversionTool::parseByteShorthand(' 16kB '));
+		$this->assertSame(8 * 1024 * 1024, ConversionTool::parseShorthandToBytes('8MB'));
+		$this->assertSame(12 * 1024, ConversionTool::parseShorthandToBytes('12KB'));
+		$this->assertSame(1 * 1024 * 1024 * 1024, ConversionTool::parseShorthandToBytes('1GB'));
+		$this->assertSame(16 * 1024, ConversionTool::parseShorthandToBytes(' 16kB '));
         // numeric passthrough
-        $this->assertSame('123', ConversionTool::parseByteShorthand('123'));
+        $this->assertSame(123, ConversionTool::parseShorthandToBytes('123'));
     }
 
     public function testStripAccentsDefaultRemovesApostrophes()

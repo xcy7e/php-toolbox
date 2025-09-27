@@ -2,8 +2,8 @@
 
 namespace Xcy7e\PhpToolbox\Tests\Library;
 
+use Exception;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\Request;
 use Xcy7e\PhpToolbox\Library\SecurityTool;
 
 /**
@@ -13,6 +13,9 @@ use Xcy7e\PhpToolbox\Library\SecurityTool;
 class SecurityToolTest extends TestCase
 {
 
+	/**
+	 * @throws Exception
+	 */
 	public function testGenerateRandomPassword()
 	{
 		$pwd = SecurityTool::generateRandomPassword(12);

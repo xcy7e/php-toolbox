@@ -2,6 +2,8 @@
 
 namespace Xcy7e\PhpToolbox\Library;
 
+use Throwable;
+
 /**
  * Encrypting & Decrypting utilities.
  *
@@ -98,7 +100,7 @@ final class CryptoTool
 			}
 
 			return $result;
-		} catch (\Throwable) {
+		} catch (Throwable) {
 			return time();
 		}
 	}

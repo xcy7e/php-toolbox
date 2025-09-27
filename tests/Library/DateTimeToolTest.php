@@ -2,6 +2,10 @@
 
 namespace Xcy7e\PhpToolbox\Tests\Library;
 
+use DateTime;
+use DateTimeImmutable;
+use Exception;
+use ReflectionException;
 use Xcy7e\PhpToolbox\Library\DateTimeTool;
 use PHPUnit\Framework\TestCase;
 
@@ -12,18 +16,52 @@ use PHPUnit\Framework\TestCase;
 class DateTimeToolTest extends TestCase
 {
 
+	/**
+	 * @throws Exception
+	 */
+	public function testCountWorkdaysBetween()
+	{
+		// germany, hesse 01.03.2025 - 30.04.2025
+		$workdaysInBetween = DateTimeTool::countWorkdaysBetween('01.03.2025', '30.04.2025', true, 'de', 'he');
+		$this->assertEquals(39, $workdaysInBetween);
+	}
+
+	/**
+	 * @throws ReflectionException
+	 */
+	public function testGetPublicHolidays()
+	{
+		// german-hesse public holidays in 2025
+		$holidays = DateTimeTool::getPublicHolidays(2025, 'de', 'he');
+
+		$this->assertCount(10, $holidays);
+	}
+
+	public function testCalculateEasterSunday()
+	{
+		/** @var DateTimeImmutable::class $easterSunday */
+		$easterSunday = DateTimeTool::calculateEasterSunday(2025);
+		$this->assertEquals('2025-04-20', $easterSunday->format('Y-m-d'));
+	}
+
+	/**
+	 * @throws Exception
+	 */
 	public function testGetMinutesDiff()
 	{
-		$beforeTwoMinutes = new \DateTime('now - 2 minutes');
+		$beforeTwoMinutes = new DateTime('now - 2 minutes');
 		$diffMin          = DateTimeTool::getMinutesDiff($beforeTwoMinutes);
 
 		$this->assertEquals(2, $diffMin);
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function testGetDaysDiff()
 	{
-		$beforeTwoDays = new \DateTime('now - 2 days');
-		$inTwoDays = new \DateTime('now + 2 days');
+		$beforeTwoDays = new DateTime('now - 2 days');
+		$inTwoDays = new DateTime('now + 2 days');
 		$diffDaysBefore      = DateTimeTool::getDaysDiff($beforeTwoDays);
 		$diffDaysIn      = DateTimeTool::getDaysDiff($inTwoDays);
 
@@ -31,15 +69,18 @@ class DateTimeToolTest extends TestCase
 		$this->assertEquals(2, $diffDaysIn);
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function testTranslateDateDiffWithDefaults()
 	{
-		$lastWeek         = new \DateTime('now -1 week');
-		$beforeYesterday  = new \DateTime('now -2 days');
-		$yesterday        = new \DateTime('now -1 day');
-		$today            = new \DateTime('now');
-		$tomorrow         = new \DateTime('now +1 day');
-		$dayAfterTomorrow = new \DateTime('now +2 days');
-		$nextWeek         = new \DateTime('now +1 week');
+		$lastWeek         = new DateTime('now -1 week');
+		$beforeYesterday  = new DateTime('now -2 days');
+		$yesterday        = new DateTime('now -1 day');
+		$today            = new DateTime('now');
+		$tomorrow         = new DateTime('now +1 day');
+		$dayAfterTomorrow = new DateTime('now +2 days');
+		$nextWeek         = new DateTime('now +1 week');
 
 		// lastWeek (en)
 		$this->assertEquals('last week', DateTimeTool::translateDateDiff($lastWeek));
@@ -65,27 +106,30 @@ class DateTimeToolTest extends TestCase
 	}
 
 
+	/**
+	 * @throws Exception
+	 */
 	public function testTranslateDateDiffWithCustomTranslations()
 	{
-		$lastWeek         = new \DateTime('now -1 week');
-		$beforeYesterday  = new \DateTime('now -2 days');
-		$yesterday        = new \DateTime('now -1 day');
-		$today            = new \DateTime('now');
-		$tomorrow         = new \DateTime('now +1 day');
-		$dayAfterTomorrow = new \DateTime('now +2 days');
-		$nextWeek         = new \DateTime('now +1 week');
+		$lastWeek         = new DateTime('now -1 week');
+		$beforeYesterday  = new DateTime('now -2 days');
+		$yesterday        = new DateTime('now -1 day');
+		$today            = new DateTime('now');
+		$tomorrow         = new DateTime('now +1 day');
+		$dayAfterTomorrow = new DateTime('now +2 days');
+		$nextWeek         = new DateTime('now +1 week');
 
 		$customTranslations = [
 			'last_week'            => 'LAST WEEK!',
 			'since_1_week'         => 'SINCE ONE WEEK!',
-			'since_n_days'         => fn(int $n) => "SINCE {$n} DAYS",
+			'since_n_days'         => fn(int $n) => "SINCE $n DAYS",
 			'day_before_yesterday' => 'DAY BEFORE YESTERDAY',
 			'yesterday'            => 'YESTERDAY',
 			'since_yesterday'      => 'SINCE YESTERDAY',
 			'today'                => 'TODAY',
 			'tomorrow'             => 'TOMORROW',
 			'day_after_tomorrow'   => 'DAY AFTER TOMORROW',
-			'in_n_days'            => fn(int $n) => "IN {$n} DAYS",
+			'in_n_days'            => fn(int $n) => "IN $n DAYS",
 			'next_week'            => 'NEXT WEEK',
 			'in_1_week'            => 'IN ONE WEEK',
 		];
@@ -112,4 +156,22 @@ class DateTimeToolTest extends TestCase
 		$this->assertEquals('NEXT WEEK', DateTimeTool::translateDateDiff($nextWeek, true, 'd.m.Y', 8, 'en_US', $customTranslations));
 		$this->assertEquals('IN ONE WEEK', DateTimeTool::translateDateDiff($nextWeek, false, 'd.m.Y', 8, 'en_US', $customTranslations));
 	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function testNormalizeIsoLanguageCode()
+	{
+		$this->assertEquals('en', DateTimeTool::normalizeIsoLanguageCode('en'));
+		$this->assertEquals('en', DateTimeTool::normalizeIsoLanguageCode('en_US'));
+		$this->assertEquals('en', DateTimeTool::normalizeIsoLanguageCode('en-US'));
+
+		$this->expectException(Exception::class);
+		$this->expectExceptionMessage('Invalid iso-language code: enUS');
+		DateTimeTool::normalizeIsoLanguageCode('enUS');
+
+		$this->expectExceptionMessage('Invalid iso-language code: en US');
+		DateTimeTool::normalizeIsoLanguageCode('en US');
+	}
+
 }

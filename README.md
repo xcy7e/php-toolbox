@@ -30,7 +30,7 @@ use Xcy7e\PhpToolbox\Library\ConversionTool;
 function howManyBytesIs8Megabyte()
 {
     // static functions dont require instantiation:
-    echo "8M equals so many bytes: " . ConversionTool::parseByteShorthand('8M');
+    echo "8M equals so many bytes: " . ConversionTool::parseShorthandToBytes('8M');
 }
 
 function createPassword():string

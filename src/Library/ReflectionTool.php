@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Xcy7e\PhpToolbox\Library;
 
+use Throwable;
+
 /**
  * Class and object reflection utilities.
  *
@@ -24,7 +26,7 @@ final class ReflectionTool
 		try {
 			$path = explode('\\', get_class($class));
 			return array_pop($path);
-		} catch (\Throwable) {
+		} catch (Throwable) {
 			return null;
 		}
 	}
