@@ -2,10 +2,11 @@
 PHP toolbox library, containing useful everyday utilities (e.g. hashing-, encoding-, date-time-functions)
 
 ## Tools
+- ArrayTool
 - Base64Tool
 - ConversionTool
+- CryptoTool
 - DateTimeTool
-- HashTool
 - ImageTool
 - MaskingTool
 - MimeTool
