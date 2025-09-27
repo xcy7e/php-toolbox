@@ -32,6 +32,9 @@ final class Base64Tool
 
 	/**
 	 * Returns the data-only part of a base64 encoded string
+	 *
+	 * @param string $base64
+	 * @return string|false
 	 */
 	public static function getBase64Data(string $base64): string|false
 	{
@@ -43,6 +46,9 @@ final class Base64Tool
 
 	/**
 	 * Guesses the file ending based on the embedded mimeType information in a base64-encoded string
+	 *
+	 * @param string $base64
+	 * @return string|null
 	 */
 	public static function getFileEndingFromBase64(string $base64): string|null
 	{
@@ -83,6 +89,9 @@ final class Base64Tool
 
 	/**
 	 * Evaluates if `$base64` is a valid base64-encoded string
+	 *
+	 * @param string $base64
+	 * @return bool
 	 */
 	public static function isValidBase64(string $base64): bool
 	{
@@ -95,6 +104,9 @@ final class Base64Tool
 
 	/**
 	 * Removes the Data-Uri-Schema from a base64 string
+	 *
+	 * @param string $base64
+	 * @return string
 	 */
 	public static function stripBase64DataUriSchema(string $base64): string
 	{

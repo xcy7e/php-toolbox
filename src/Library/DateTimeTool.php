@@ -26,7 +26,7 @@ final class DateTimeTool
 	{
 		$now = new \DateTime();
 		if ($date instanceof DateTimeInterface === false) {
-			$date = new \DateTime(date("d.m.Y H:i:s", strtotime($date)));
+			$date = new \DateTime($date);
 		}
 		$diff = $now->diff($date);
 
@@ -47,7 +47,7 @@ final class DateTimeTool
 		}
 		$now = (new \DateTime())->setTime(0, 0);
 
-		return (int)$now->diff($date->setTime(0, 0))->format('%R%a') - 1;
+		return (int)$now->diff($date->setTime(0, 0))->format('%R%a');
 	}
 
 	/**
@@ -61,16 +61,24 @@ final class DateTimeTool
 	 *                                                 (both past and future).
 	 * @param string                        $locale    Locale for translations, defaults to English ("en_US").
 	 *                                                 Examples: "de_DE", "fr_FR".
+	 * @param null|array{
+	 *     last_week: string,
+	 *     since_1_week: string,
+	 *     since_n_days: callable(int): string,
+	 *     day_before_yesterday: string,
+	 *     yesterday: string,
+	 *     since_yesterday: string,
+	 *     today: string,
+	 *     tomorrow: string,
+	 *     day_after_tomorrow: string,
+	 *     in_n_days: callable(int): string,
+	 *     next_week: string,
+	 *     in_1_week: string
+	 *   } $translations                               custom translations (fallback EN)
 	 * @return string
 	 * @throws Exception
 	 */
-	public static function translateDateDiff(
-		null|string|DateTimeInterface $date = null,
-		bool                          $informalDate = true,
-		string                        $dateFormat = 'd.m.Y',
-		int                           $rangeDays = 8,
-		string                        $locale = 'en_US'
-	): string
+	public static function translateDateDiff(null|string|DateTimeInterface $date = null, bool $informalDate = true, string $dateFormat = 'd.m.Y', int $rangeDays = 8, string $locale = 'en_US', ?array $translations = null): string
 	{
 		$date = $date ?? new \DateTime();    // fallback: now
 
@@ -93,7 +101,7 @@ final class DateTimeTool
 		}
 
 		// Localized phrases with graceful fallback to English
-		$dict = self::getRelativeDateDictionary($locale);
+		$dict = self::getRelativeDateDictionary($locale, $translations);
 
 		// Build string according to diff
 		return match ($diffDays) {
@@ -135,20 +143,21 @@ final class DateTimeTool
 	 *  }            $translations     custom translations (fallback EN)
 	 * @return array<string, mixed>
 	 */
-	#[ArrayShape([
-		'last_week'            => 'string',
-		'since_1_week'         => 'string',
-		'since_n_days'         => 'callable(int):string',
-		'day_before_yesterday' => 'string',
-		'yesterday'            => 'string',
-		'since_yesterday'      => 'string',
-		'today'                => 'string',
-		'tomorrow'             => 'string',
-		'day_after_tomorrow'   => 'string',
-		'in_n_days'            => 'callable(int):string',
-		'next_week'            => 'string',
-		'in_1_week'            => 'string',
-	])]
+	#[
+		ArrayShape([
+			'last_week'            => 'string',
+			'since_1_week'         => 'string',
+			'since_n_days'         => 'callable(int):string',
+			'day_before_yesterday' => 'string',
+			'yesterday'            => 'string',
+			'since_yesterday'      => 'string',
+			'today'                => 'string',
+			'tomorrow'             => 'string',
+			'day_after_tomorrow'   => 'string',
+			'in_n_days'            => 'callable(int):string',
+			'next_week'            => 'string',
+			'in_1_week'            => 'string',
+		])]
 	private static function getRelativeDateDictionary(string $locale = 'en', ?array $translations = null): array
 	{
 		// Native default translations
@@ -264,7 +273,10 @@ final class DateTimeTool
 	}
 
 	/**
-	 * Normalize locale like "de-DE" -> "de_DE", return primary language code if needed.
+	 * Normalize locale, e.g. "de-DE" -> "de_DE"
+	 *
+	 * @param string $locale
+	 * @return string
 	 */
 	private static function normalizeLocale(string $locale): string
 	{

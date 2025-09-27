@@ -4,7 +4,6 @@ namespace Xcy7e\PhpToolbox\Library;
 
 use Exception;
 use Symfony\Component\HttpFoundation\IpUtils;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Security utilities.
@@ -67,43 +66,43 @@ final class SecurityTool
 	/**
 	 * Recursively sanitizes arrays by masking sensitive values and truncating long strings.
 	 *
-	 *  - Keys matching any of `$stripKeywords` (case-insensitive) are replaced with `$stripText`.
-	 *  - Strings longer than `$maxStringBytes` (in raw bytes) are truncated and suffixed with`$stripText`.
+	 *  - Keys matching any of `$needles` (case-insensitive) are replaced with `$replacement`.
+	 *  - Strings longer than `$maxStringBytes` (in raw bytes) are truncated and suffixed with`$replacement`.
 	 *
 	 * @param array  $data
-	 * @param string $stripText
-	 * @param array  $stripKeywords
+	 * @param string $replacement
+	 * @param array  $needles
 	 * @param int    $maxStringBytes
 	 * @return array
 	 */
-	public static function sanitizeDataRecursive(#[\SensitiveParameter] array $data, string $stripText = '##STRIPPED##', array $stripKeywords = ['password', 'Password', 'fileHolderBase64', '_token'], int $maxStringBytes = 255): array
+	public static function sanitizeDataRecursive(#[\SensitiveParameter] array $data, string $replacement = '##STRIPPED##', array $needles = ['password', 'Password', 'fileHolderBase64', '_token'], int $maxStringBytes = 255): array
 	{
 		if ($data === []) {
 			return $data;
 		}
 
 		// Normalize keywords for case-insensitive comparison
-		$needle = array_map(static fn($v) => strtolower((string)$v), $stripKeywords);
+		$needle = array_map(static fn($v) => strtolower((string)$v), $needles);
 
 		foreach ($data as $k => $v) {
 			$keyLower = strtolower((string)$k);
 
 			if (in_array($keyLower, $needle, true)) {
-				$data[$k] = $stripText;
+				$data[$k] = $replacement;
 				continue;
 			}
 
 			if (is_string($v)) {
 				// Byte-length boundary to be conservative about PII spills
 				if ($maxStringBytes > 0 && mb_strlen($v, '8bit') > $maxStringBytes) {
-					$data[$k] = substr($v, 0, $maxStringBytes) . $stripText;
+					$data[$k] = substr($v, 0, $maxStringBytes) . $replacement;
 					continue;
 				}
 			}
 
 			if (is_array($v)) {
 				// recursion \o/
-				$data[$k] = self::sanitizeDataRecursive($v, $stripText, $stripKeywords, $maxStringBytes);
+				$data[$k] = self::sanitizeDataRecursive($v, $replacement, $needles, $maxStringBytes);
 			}
 		}
 
@@ -111,21 +110,43 @@ final class SecurityTool
 	}
 
 	/**
-	 * Evaluates if the current `$request` IP is whitelisted in `$ipWhitelist`
+	 * Evaluates the current runtime request client ip address if possible
+	 *
+	 * @return string|null
 	 */
-	public static function isIpWhitelisted(Request $request, string $ipWhitelist): bool
+	public static function getClientIp(): ?string
 	{
-		$clientIp = $request->getClientIp();
-		if (!is_string($clientIp) || $clientIp === '') {
+		return $_SERVER['HTTP_CLIENT_IP']
+			?? $_SERVER['HTTP_X_FORWARDED_FOR']
+			?? $_SERVER['REMOTE_ADDR']
+			?? null;
+	}
+
+	/**
+	 * Evaluates if the current `$request` IP is whitelisted in `$ipWhitelist`
+	 *
+	 * @param string|null  $ipAddress [optional] NULL = current request clientIp
+	 * @param array|string $ipWhitelist
+	 * @return bool
+	 */
+	public static function isIpWhitelisted(array|string $ipWhitelist, ?string $ipAddress = null): bool
+	{
+		$clientIp = $ipAddress ?? SecurityTool::getClientIp();
+		if (!is_string($clientIp) || in_array($clientIp, ['', '0.0.0.0'])) {
 			return false;
 		}
 
-		$ranges = array_values(array_filter(array_map('trim', explode(',', $ipWhitelist)), static fn($v) => $v !== ''));
-		if ($ranges === []) {
-			return false;
-		}
+		$ranges = array_values(
+			array_filter(
+				array_map(
+					'trim',
+					is_array($ipWhitelist) ? $ipWhitelist : explode(',', $ipWhitelist)
+				),
+				static fn($v) => $v !== ''
+			)
+		);
 
-		return IpUtils::checkIp($clientIp, $ranges);
+		return $ranges !== [] && IpUtils::checkIp($clientIp, $ranges);
 	}
 
 }

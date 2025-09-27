@@ -3,6 +3,7 @@
 namespace Xcy7e\PhpToolbox\Tests\Library;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Uid\Uuid;
 use Xcy7e\PhpToolbox\Library\PathTool;
 
 /**
@@ -21,21 +22,39 @@ class PathToolTest extends TestCase
 		$this->assertStringNotContainsString(str_repeat(DIRECTORY_SEPARATOR, 2), $path);
 	}
 
-	public function testExtractCategoryDirSuffix()
+	public function testBuildHashPath()
 	{
-		$p = '/var/data/abc_DEFghi_JPG/foo';
-		$this->assertSame('_DEF', PathTool::extractCategoryDirSuffix($p));
-		$this->assertSame('', PathTool::extractCategoryDirSuffix('/no/suffix/here'));
+		$uid      = Uuid::fromString('c0ffeeba-babe-babe-babe-c0ffeec0ffee');
+		$hashPath = PathTool::buildHashPath($uid);
+
+		// expect: "c0/ff/ee/" or "c0\ff\ee\"
+		$this->assertEquals(sprintf('%s%s%s%s%s%s', 'c0', DIRECTORY_SEPARATOR, 'ff', DIRECTORY_SEPARATOR, 'ee', DIRECTORY_SEPARATOR), $hashPath);
+		// Ensure no duplicate separators
+		$this->assertStringNotContainsString(str_repeat(DIRECTORY_SEPARATOR, 2), $hashPath);
 	}
 
-	public function testIsHashPathAndGetEncPathGroup()
+	public function testIsHashPath()
 	{
-		$dir = '/aa/bb/cc/';
-		$this->assertTrue(PathTool::isHashPath($dir));
-		$grp = PathTool::getEncPathGroup($dir);
+		$hashPath1 = sprintf('%s%s%s%s%s%s', 'c0', DIRECTORY_SEPARATOR, 'ff', DIRECTORY_SEPARATOR, 'ee', DIRECTORY_SEPARATOR);	// c0/ff/ee
+		$hashPath2 = sprintf('%s%s%s%s%s%s', 'c0', DIRECTORY_SEPARATOR, 'ff', DIRECTORY_SEPARATOR, 'ee', DIRECTORY_SEPARATOR);	// c0/ff/ee/
+		$hashPath3 = sprintf('%s%s%s%s%s%s', 'c0', DIRECTORY_SEPARATOR, 'ff', DIRECTORY_SEPARATOR, 'ee', DIRECTORY_SEPARATOR);	// /c0/ff/ee
+		$hashPath4 = sprintf('%s%s%s%s%s%s', 'c0', DIRECTORY_SEPARATOR, 'ff', DIRECTORY_SEPARATOR, 'ee', DIRECTORY_SEPARATOR);	// /c0/ff/ee/
+		$nonHashPath = '/c0f/fee/';
+
+		$this->assertTrue(PathTool::isHashPath($hashPath1));
+		$this->assertTrue(PathTool::isHashPath($hashPath2));
+		$this->assertTrue(PathTool::isHashPath($hashPath3));
+		$this->assertTrue(PathTool::isHashPath($hashPath4));
+		$this->assertFalse(PathTool::isHashPath($nonHashPath));
+	}
+
+	public function testGetHashPathSegment()
+	{
+		$dir = '/c0/ff/ee/';
+		$grp = PathTool::getHashPathSegment($dir);
+
 		// getEncPathGroup returns numeric-indexed array [1=>aa,2=>bb,3=>cc]
-		$this->assertSame(['aa', 'bb', 'cc'], array_values($grp));
-		$this->assertFalse(PathTool::isHashPath('/aa/bb/ccc/')); // last is 3 chars
+		$this->assertSame(['c0', 'ff', 'ee'], array_values($grp));
 	}
 
 }

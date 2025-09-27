@@ -12,6 +12,16 @@ use Xcy7e\PhpToolbox\Library\SecurityTool;
  */
 class SecurityToolTest extends TestCase
 {
+
+	public function testGenerateRandomPassword()
+	{
+		$pwd = SecurityTool::generateRandomPassword(12);
+
+		$this->assertIsString($pwd);
+		$this->assertGreaterThanOrEqual(12, strlen($pwd));
+		$this->assertMatchesRegularExpression('/^[A-Za-z0-9]+$/', $pwd);
+	}
+
     public function testSanitizeDataRecursiveMasksAndTruncates()
     {
         $data = [
@@ -34,21 +44,13 @@ class SecurityToolTest extends TestCase
 
     public function testIsIpWhitelisted()
     {
-        $request = Request::create('/', 'GET', [], [], [], ['REMOTE_ADDR' => '10.0.0.1']);
-        $this->assertTrue(SecurityTool::isIpWhitelisted($request, '10.0.0.0/8'));
+        $ip = '10.0.0.1';
+        $this->assertTrue(SecurityTool::isIpWhitelisted($ip, '10.0.0.1'));
 
-        $request2 = Request::create('/', 'GET', [], [], [], ['REMOTE_ADDR' => '192.168.1.50']);
-        $this->assertFalse(SecurityTool::isIpWhitelisted($request2, '10.0.0.0/8'));
+        $ip = '192.168.1.50';
+        $this->assertFalse(SecurityTool::isIpWhitelisted($ip, '192.168.1.49'));
 
         // Empty whitelist => false
-        $this->assertFalse(SecurityTool::isIpWhitelisted($request2, ''));
-    }
-
-    public function testGenerateRandomPassword()
-    {
-        $pwd = SecurityTool::generateRandomPassword(12);
-        $this->assertIsString($pwd);
-        $this->assertGreaterThanOrEqual(12, strlen($pwd));
-        $this->assertMatchesRegularExpression('/^[A-Za-z0-9]+$/', $pwd);
+        $this->assertFalse(SecurityTool::isIpWhitelisted($ip, ''));
     }
 }

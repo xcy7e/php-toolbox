@@ -13,6 +13,9 @@ final class ConversionTool
 
 	/**
 	 * Converts shorthand-byte-notations into bytes, e.g. `8M` -> ~`8e+6`, `12K` -> ~`12000`
+	 *
+	 * @param string $byteNotation
+	 * @return float|int|string
 	 */
 	public static function parseByteShorthand(string $byteNotation): float|int|string
 	{
@@ -24,6 +27,9 @@ final class ConversionTool
 		$notation     = str_replace($bytes, '', $byteNotation);
 
 		switch ($notation) {
+			case 't':
+			case 'tb':
+				$bytes *= 1024;
 			case 'g':
 			case 'gb':
 				$bytes *= 1024;
@@ -36,6 +42,21 @@ final class ConversionTool
 		}
 
 		return $bytes;
+	}
+
+	/**
+	 * Converts a byte value into a human-readable shorthand notation, e.g. `12288` -> `12K`
+	 *
+	 * @param int   $bytes
+	 * @param array $units
+	 * @return string
+	 */
+	public static function parseBytesToShorthandNotation(int $bytes, array $units = ['B', 'K', 'M', 'G', 'T']): string
+	{
+		$exponent = (int)floor(log($bytes, 1024));
+		$power    = (string)@round($bytes / ((float)pow(1024, $exponent)), 2, PHP_ROUND_HALF_UP);
+
+		return $power . $units[$exponent];
 	}
 
 	/**

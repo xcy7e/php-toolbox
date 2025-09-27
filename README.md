@@ -15,16 +15,14 @@ PHP toolbox library, containing useful everyday utilities (e.g. hashing-, encodi
 
 
 ## Installation
-Using composer:
+Install the latest version, using composer:
 ```bash
-composer require "xcy7e/php-toolbox":"*"
+composer require xcy7e/php-toolbox
 ```
 
 ## Usage
-Anywhere in your code, using the tools is easy:
+Using the tools is easy:
 ```php
-<?php
-
 use Xcy7e\PhpToolbox\Library\ConversionTool;
 
 // ...
@@ -37,7 +35,7 @@ function howManyBytesIs8Megabyte()
 
 function createPassword():string
 {
-    // Without `use`-directive:
+    // or: without `use`-directive:
     return \Xcy7e\PhpToolbox\Library\SecurityTool::generateRandomPassword(12);  // 12 char long password
 }
 ```

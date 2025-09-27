@@ -2,22 +2,54 @@
 
 namespace Xcy7e\PhpToolbox\Library;
 
-use Symfony\Component\Uid\Uuid;
-
 /**
- * Hashing and random string generation utilities.
+ * Encrypting & Decrypting utilities.
  *
  * @package Xcy7e\PhpToolbox\Library
  * @author  Jonathan Riedmair <jonathan@xcy7e.pro>
  */
-final class HashTool
+final class CryptoTool
 {
+
+	public const DEFAULT_ALGO = 'aes-256-cbc';
+
+	/**
+	 * Encrypts data with the given passphrase and returns the result as base64 encoded string.
+	 *
+	 * @param string $data
+	 * @param string $passphrase should have been previously generated in a cryptographically safe way, like `openssl_random_pseudo_bytes`
+	 * @param string $algorithm
+	 * @param string $iv [optional] A non-NULL Initialization Vector.
+	 * @return string
+	 */
+	public static function encrypt(string $data, #[\SensitiveParameter] string $passphrase, string $algorithm = CryptoTool::DEFAULT_ALGO, string $iv = ""): string
+	{
+		return base64_encode(openssl_encrypt($data, $algorithm, $passphrase, OPENSSL_RAW_DATA, $iv));
+	}
+
+	/**
+	 * Decrypts base64 wrapped encrypted data with the given passphrase.
+	 *
+	 * @param string $data
+	 * @param string $passphrase
+	 * @param string $algorithm
+	 * @param string $iv [optional] A non-NULL Initialization Vector.
+	 * @return string
+	 */
+	public static function decrypt(string $data, #[\SensitiveParameter] string $passphrase, string $algorithm = CryptoTool::DEFAULT_ALGO, string $iv = ""): string
+	{
+		return openssl_decrypt(base64_decode($data), $algorithm, $passphrase, OPENSSL_RAW_DATA, $iv);
+	}
 
 	/**
 	 * Builds a hash out of `$plain` with the specified algorithm.
 	 * Falls back to sha256 if the provided algorithm is not available.
+	 *
+	 * @param string $plain
+	 * @param string $algo
+	 * @return string
 	 */
-	public static function getHash(string $plain, string $algo = 'sha256'): string
+	public static function hash(string $plain, string $algo = 'sha256'): string
 	{
 		$algo = strtolower($algo);
 		static $available = null;
@@ -33,6 +65,9 @@ final class HashTool
 	/**
 	 * Builds a random string of length `$length` using a cryptographically secure PRNG.
 	 * Returns a timestamp on error.
+	 *
+	 * @param int $length
+	 * @return string|int
 	 */
 	public static function randomStr(int $length = 6): string|int
 	{
@@ -66,27 +101,6 @@ final class HashTool
 		} catch (\Throwable) {
 			return time();
 		}
-	}
-
-	/**
-	 * Generates a 3-level hash path based on a given or random UUID, e.g. "c0/ff/ee/"
-	 */
-	public static function generateHashPath(null|string|Uuid $uuid = null): string
-	{
-		// Normalize input to a 32-char hex string without dashes
-		if ($uuid instanceof Uuid) {
-			$normalized = str_replace('-', '', $uuid->toRfc4122());
-		} elseif (is_string($uuid) && $uuid !== '') {
-			$normalized = str_replace('-', '', $uuid);
-		} else {
-			$normalized = str_replace('-', '', Uuid::v1()->toRfc4122());
-		}
-
-		return implode(DIRECTORY_SEPARATOR, [
-				substr($normalized, 0, 2),
-				substr($normalized, 2, 2),
-				substr($normalized, 4, 2),
-			]) . DIRECTORY_SEPARATOR;
 	}
 
 }

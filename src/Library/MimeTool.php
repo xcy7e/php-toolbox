@@ -200,6 +200,9 @@ final class MimeTool
 
 	/**
 	 * Evaluates the file ending based on the mime type.
+	 *
+	 * @param string $mime
+	 * @return string|false
 	 */
 	public static function mime2ext(string $mime): string|false
 	{
