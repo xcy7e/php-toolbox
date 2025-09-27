@@ -3,7 +3,7 @@
   "description": "PHP toolbox library, containing useful everyday utilities.",
   "type": "library",
   "license": "GPL-3.0-or-later",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "minimum-stability": "stable",
   "authors": [
     {
