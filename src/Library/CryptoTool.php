@@ -13,7 +13,9 @@ use Throwable;
 final class CryptoTool
 {
 
+	// region constants
 	public const DEFAULT_ALGO = 'aes-256-cbc';
+	// endregion
 
 	/**
 	 * Encrypts data with the given passphrase and returns the result as base64 encoded string.

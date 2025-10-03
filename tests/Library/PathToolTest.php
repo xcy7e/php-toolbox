@@ -22,39 +22,61 @@ class PathToolTest extends TestCase
 		$this->assertStringNotContainsString(str_repeat(DIRECTORY_SEPARATOR, 2), $path);
 	}
 
-	public function testBuildHashPath()
+	public function testBuildHashPathDepth3()
 	{
-		$uid      = Uuid::fromString('c0ffeeba-babe-babe-babe-c0ffeec0ffee');
-		$hashPath = PathTool::buildHashPath($uid);
+		$uid      = Uuid::fromString('c0ffeeba-bebe-babe-babe-c0ffeec0ffee');
+		$hashPath3 = PathTool::buildHashPath($uid, 3);
+		$hashPath5 = PathTool::buildHashPath($uid, 5);
 
 		// expect: "c0/ff/ee/" or "c0\ff\ee\"
-		$this->assertEquals(sprintf('%s%s%s%s%s%s', 'c0', DIRECTORY_SEPARATOR, 'ff', DIRECTORY_SEPARATOR, 'ee', DIRECTORY_SEPARATOR), $hashPath);
+		$this->assertEquals(sprintf('%s%s%s%s%s%s', 'c0', DIRECTORY_SEPARATOR, 'ff', DIRECTORY_SEPARATOR, 'ee', DIRECTORY_SEPARATOR), $hashPath3);
+		// expect: "c0/ff/ee/ba/be" or "c0\ff\ee\ba\be"
+		$this->assertEquals(sprintf('%s%s%s%s%s%s%s%s%s%s', 'c0', DIRECTORY_SEPARATOR, 'ff', DIRECTORY_SEPARATOR, 'ee', DIRECTORY_SEPARATOR, 'ba', DIRECTORY_SEPARATOR, 'be', DIRECTORY_SEPARATOR), $hashPath5);
 		// Ensure no duplicate separators
-		$this->assertStringNotContainsString(str_repeat(DIRECTORY_SEPARATOR, 2), $hashPath);
+		$this->assertStringNotContainsString(str_repeat(DIRECTORY_SEPARATOR, 2), $hashPath3);
 	}
 
 	public function testIsHashPath()
 	{
-		$hashPath1 = sprintf('%s%s%s%s%s%s', 'c0', DIRECTORY_SEPARATOR, 'ff', DIRECTORY_SEPARATOR, 'ee', DIRECTORY_SEPARATOR);	// c0/ff/ee
-		$hashPath2 = sprintf('%s%s%s%s%s%s', 'c0', DIRECTORY_SEPARATOR, 'ff', DIRECTORY_SEPARATOR, 'ee', DIRECTORY_SEPARATOR);	// c0/ff/ee/
-		$hashPath3 = sprintf('%s%s%s%s%s%s', 'c0', DIRECTORY_SEPARATOR, 'ff', DIRECTORY_SEPARATOR, 'ee', DIRECTORY_SEPARATOR);	// /c0/ff/ee
-		$hashPath4 = sprintf('%s%s%s%s%s%s', 'c0', DIRECTORY_SEPARATOR, 'ff', DIRECTORY_SEPARATOR, 'ee', DIRECTORY_SEPARATOR);	// /c0/ff/ee/
-		$nonHashPath = '/c0f/fee/';
+		$hashPath1a = sprintf('%s', 'c0');	// c0
+		$hashPath3a = sprintf('%s%s%s%s%s%s', 'c0', DIRECTORY_SEPARATOR, 'ff', DIRECTORY_SEPARATOR, 'ee', DIRECTORY_SEPARATOR);	// c0/ff/ee
+		$hashPath3b = sprintf('%s%s%s%s%s%s', 'c0', DIRECTORY_SEPARATOR, 'ff', DIRECTORY_SEPARATOR, 'ee', DIRECTORY_SEPARATOR);	// c0/ff/ee/
+		$hashPath3c = sprintf('%s%s%s%s%s%s', 'c0', DIRECTORY_SEPARATOR, 'ff', DIRECTORY_SEPARATOR, 'ee', DIRECTORY_SEPARATOR);	// /c0/ff/ee
+		$hashPath3d = sprintf('%s%s%s%s%s%s', 'c0', DIRECTORY_SEPARATOR, 'ff', DIRECTORY_SEPARATOR, 'ee', DIRECTORY_SEPARATOR);	// /c0/ff/ee/
+		$hashPath5a = sprintf('%s%s%s%s%s%s%s%s%s', 'c0', DIRECTORY_SEPARATOR, 'ff', DIRECTORY_SEPARATOR, 'ee', DIRECTORY_SEPARATOR, 'ba', DIRECTORY_SEPARATOR, 'be');	// /c0/ff/ee/ba/be
+		$invalidHashPath = '/c0f/fee/';
 
-		$this->assertTrue(PathTool::isHashPath($hashPath1));
-		$this->assertTrue(PathTool::isHashPath($hashPath2));
-		$this->assertTrue(PathTool::isHashPath($hashPath3));
-		$this->assertTrue(PathTool::isHashPath($hashPath4));
-		$this->assertFalse(PathTool::isHashPath($nonHashPath));
+		$this->assertTrue(PathTool::isHashPath($hashPath1a, 1));
+		$this->assertTrue(PathTool::isHashPath($hashPath3a, 3));
+		$this->assertTrue(PathTool::isHashPath($hashPath3b, 3));
+		$this->assertTrue(PathTool::isHashPath($hashPath3c, 3));
+		$this->assertTrue(PathTool::isHashPath($hashPath3d, 3));
+		$this->assertTrue(PathTool::isHashPath($hashPath5a, 5));
+		$this->assertFalse(PathTool::isHashPath($invalidHashPath, 2));
 	}
 
 	public function testGetHashPathSegment()
 	{
-		$dir = '/c0/ff/ee/';
-		$grp = PathTool::getHashPathSegment($dir);
+		// Depth = 1
+		$dir = '/c0/';
+		$grp = PathTool::getHashPathSegment($dir, 1);
 
-		// getEncPathGroup returns numeric-indexed array [1=>aa,2=>bb,3=>cc]
+		// getHashPathSegment returns a numeric-indexed array [1=>aa,2=>bb,3=>cc]
+		$this->assertSame(['c0'], array_values($grp));
+
+		// Depth = 3
+		$dir = '/c0/ff/ee/';
+		$grp = PathTool::getHashPathSegment($dir, 3);
+
+		// getHashPathSegment returns a numeric-indexed array [1=>aa,2=>bb,3=>cc]
 		$this->assertSame(['c0', 'ff', 'ee'], array_values($grp));
+
+		// Depth = 5
+		$dir = '/c0/ff/ee/ba/be/';
+		$grp = PathTool::getHashPathSegment($dir, 5);
+
+		// getHashPathSegment returns a numeric-indexed array [1=>aa,2=>bb,3=>cc]
+		$this->assertSame(['c0', 'ff', 'ee', 'ba', 'be'], array_values($grp));
 	}
 
 }

@@ -11,6 +11,7 @@ namespace Xcy7e\PhpToolbox\Library;
 final class MimeTool
 {
 
+	// region constants
 	public const MIME_MAP = [
 		'video/3gpp2'                                                               => '3g2',
 		'video/3gp'                                                                 => '3gp',
@@ -197,6 +198,7 @@ final class MimeTool
 		'multipart/x-zip'                                                           => 'zip',
 		'text/x-scriptzsh'                                                          => 'zsh',
 	];
+	// endregion
 
 	/**
 	 * Evaluates the file ending based on the mime type.

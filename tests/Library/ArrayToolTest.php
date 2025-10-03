@@ -19,13 +19,16 @@ class ArrayToolTest extends TestCase
 			' item2',
 			' item3 ',
 			'item4 ',
-			'item 5'
+			'item 5',
+			'item6' => [
+				' item7 ',
+			]
 		];
 
 		$array = ArrayTool::trimElements($array);
 
 		$this->assertIsArray($array);
-		$this->assertEquals(['item1', 'item2', 'item3', 'item4', 'item 5'], $array);
+		$this->assertEquals(['item1', 'item2', 'item3', 'item4', 'item 5', 'item6' => ['item7']], $array);
 	}
 
 }

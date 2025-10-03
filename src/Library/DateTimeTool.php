@@ -22,16 +22,16 @@ final class DateTimeTool
 {
 
 	/**
-	 * Calculates the number of workdays (monday – friday) between two dates.
-	 * Excludes weekend- and optional public holidays.
+	 * Calculates the number of workdays (Monday – Friday) between two dates.
+	 * Excludes weekends and optional public holidays.
 	 *
 	 * @param string|DateTimeInterface $start
 	 * @param string|DateTimeInterface $end
 	 * @param bool                     $excludeHolidays
-	 * @param string                   $locale [ISO 3166-1 alpha-2] country code, e.g. `DE`=germany, `US`=USA,
-	 *                                         `FR`=france
-	 * @param string|null              $state  [optional] [ISO 3166-2] State or regional code, e.g. `BY` for bavaria in
-	 *                                         germany
+	 * @param string                   $locale [ISO 3166-1 alpha-2] country code, e.g. `DE`=Germany, `US`=USA,
+	 *                                         `FR`=France
+	 * @param string|null              $state  [optional] [ISO 3166-2] State or regional code, e.g. `BY` for Bavaria in
+	 *                                         Germany
 	 * @return int
 	 * @throws Exception
 	 * @see https://en.wikipedia.org/wiki/ISO_3166-2
@@ -85,8 +85,8 @@ final class DateTimeTool
 	 * Evaluates all public holidays for a given year in a given country (and optional a specific state).
 	 *
 	 * @param int         $year
-	 * @param string      $locale [ISO 3166-1 alpha-2] country code, e.g. `DE`=germany, `US`=USA, `FR`=france
-	 * @param string|null $state  [optional] [ISO 3166-2] State or regional code, e.g. `BY` for bavaria in germany
+	 * @param string      $locale [ISO 3166-1 alpha-2] country code, e.g. `DE`=Germany, `US`=USA, `FR`=France
+	 * @param string|null $state  [optional] [ISO 3166-2] State or regional code, e.g. `BY` for Bavaria in Germany
 	 * @return array{string: DateTime}
 	 * @throws ReflectionException
 	 * @throws Exception
@@ -171,8 +171,8 @@ final class DateTimeTool
 	}
 
 	/**
-	 * Translates `$date` in a readable text, if the date is within 8 days close to *now* (prior or past)
-	 * e.g. "yesterday", "in 2 days", "last week", etc.
+	 * Translates `$date` in a readable text, if the date is within 8 days close to *now* (prior or past).
+	 * E.g. "yesterday", "in 2 days", "last week", etc.
 	 *
 	 * @param string|DateTimeInterface|null $date         (null = *now*)
 	 * @param bool                          $informalDate

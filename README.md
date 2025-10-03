@@ -1,5 +1,6 @@
-# PHP-Toolbox
-PHP toolbox library, containing useful everyday utilities (e.g. hashing-, encoding-, date-time-functions)
+<h1><img src="./res/icon.png" width="38" style="margin:0 0 -5px;" /> PHP-Toolbox</h1>
+
+PHP toolbox library, containing useful everyday utilities (e.g., hashing-, encoding-, date-time-functions). Utilizing [symfony](https://symfony.com/) components.
 
 ## Tools
 - ArrayTool
@@ -16,31 +17,37 @@ PHP toolbox library, containing useful everyday utilities (e.g. hashing-, encodi
 
 
 ## Installation
-Install the latest version, using composer:
+Using [composer](https://getcomposer.org/): (recommended)
 ```bash
 composer require xcy7e/php-toolbox
 ```
 
-## Usage
-Using the tools is easy:
-```php
-use Xcy7e\PhpToolbox\Library\ConversionTool;
-
-// ...
-
-function howManyBytesIs8Megabyte()
-{
-    // static functions dont require instantiation:
-    echo "8M equals so many bytes: " . ConversionTool::parseShorthandToBytes('8M');
-}
-
-function createPassword():string
-{
-    // or: without `use`-directive:
-    return \Xcy7e\PhpToolbox\Library\SecurityTool::generateRandomPassword(12);  // 12 char long password
-}
+Using git:
+```bash
+git clone https://github.com/xcy7e/php-toolbox.git
 ```
 
-> #### No instantiation required!
-> Alle functions are `static` and can be called directly on the class name.
-> You **do not** need to instantiate the class like `$conversionTool = new ConversionTool();`.
+## Usage
+```php
+// with use-directive
+use Xcy7e\PhpToolbox\Library\ConversionTool;
+
+// all functions can be used statically
+echo "8M equals so many bytes: " . ConversionTool::parseShorthandToBytes('8M');
+```
+```php
+// without use-directive
+$encrypted = \Xcy7e\PhpToolbox\Library\CryptoTool::encrypt('sensitiveData', 'myPassword');
+```
+
+
+---
+
+```
+© 2025 by Jonathan Riedmair
+Licensed under GNU General Public License v3
+You are free to use this code for personal and commercial purposes, change it to your needs and share it as you like.
+Reference to the author is not required.
+```
+
+Icon by [muh zakaria](https://jackvisualassets.com/).

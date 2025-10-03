@@ -14,6 +14,10 @@ use Symfony\Component\HttpFoundation\IpUtils;
 final class SecurityTool
 {
 
+	// region constants
+	public const RANDOM_PASSWORD_MIN_LENGTH = 4;
+	// endregion
+
 	/**
 	 * Generates a random password using only cryptographically secure randomness (CSPRNG).
 	 *
@@ -26,7 +30,7 @@ final class SecurityTool
 	 */
 	public static function generateRandomPassword(int $length = 24): string
 	{
-		$length = max($length, 4); // at least 4 chars
+		$length = max($length, self::RANDOM_PASSWORD_MIN_LENGTH);
 
 		$mapNumbers      = '23456789';
 		$mapLettersBig   = 'ABCDEFGHJKLMNPQRSTUVWXYZ';

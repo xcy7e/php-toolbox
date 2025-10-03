@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Xcy7e\PhpToolbox\Library;
 
@@ -46,8 +44,8 @@ final class ReflectionTool
 	}
 
 	/**
-	 * Converts a camelCase method name to snake_case,
-	 * e.g. `getExampleProperty` => `example_property`, `setFirstname` => `firstname`
+	 * Converts a camelCase method name to snake_case.
+	 * E.g. `getExampleProperty` => `example_property`, `setFirstname` => `firstname`
 	 *
 	 * @param array|string $method
 	 * @param string       $setOrGet

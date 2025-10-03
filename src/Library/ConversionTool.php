@@ -14,6 +14,7 @@ use Normalizer;
 final class ConversionTool
 {
 
+	// region constants
 	/** @var array<int,string> */
 	private const BYTE_UNITS = ['B', 'K', 'M', 'G', 'T'];
 
@@ -33,6 +34,7 @@ final class ConversionTool
 		'Ħ' => 'H', 'ħ' => 'h',
 		'Ŋ' => 'N', 'ŋ' => 'n',
 	];
+	// endregion
 
 	/**
 	 * Parse shorthand byte notation like "8M" or "12K" into integer bytes.
