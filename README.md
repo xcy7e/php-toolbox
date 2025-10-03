@@ -1,4 +1,4 @@
-<h1><img src="./res/icon.png" width="38" style="margin:0 0 -5px;" /> PHP-Toolbox</h1>
+<h1><img src="./res/icon.png" alt="icon" style="margin:0 0 -5px;" /> PHP-Toolbox</h1>
 
 PHP toolbox library, containing useful everyday utilities (e.g., hashing-, encoding-, date-time-functions). Utilizing [symfony](https://symfony.com/) components.
 
