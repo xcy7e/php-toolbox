@@ -241,6 +241,27 @@ final class DateTimeTool
 	}
 
 	/**
+	 * Extracts an `ISO 639-1` language code from a string also containing an `ISO 3166-1 alpha-2 country code`,
+	 * e.g. `de-DE` -> `de`, `de_DE` => `de`, `en_US` -> `en`
+	 *
+	 * @param string $code
+	 * @return string
+	 * @throws Exception
+	 */
+	public static function normalizeIsoLanguageCode(string $code): string
+	{
+		if (!preg_match('/^[a-zA-Z]{2}(?:[_|-]{1}[a-zA-Z]{2}){0,1}$/', $code)) {
+			// none of format: "en", "en_US", "en-US" (case-insensitive)
+			throw new Exception(sprintf('Invalid iso-language code: %s', $code));
+		}
+
+		$l     = str_replace('-', '_', $code);
+		$parts = explode('_', $l);
+
+		return strtolower($parts[0]);
+	}
+
+	/**
 	 * Returns a small i18n dictionary for relative date phrases.
 	 * Falls back to English when a key is missing.
 	 *
@@ -390,27 +411,6 @@ final class DateTimeTool
 
 		// Missing keys will be set to English
 		return array_replace($en, $base);
-	}
-
-	/**
-	 * Extracts an `ISO 639-1` language code from a string also containing an `ISO 3166-1 alpha-2 country code`,
-	 * e.g. `de-DE` -> `de`, `de_DE` => `de`, `en_US` -> `en`
-	 *
-	 * @param string $code
-	 * @return string
-	 * @throws Exception
-	 */
-	public static function normalizeIsoLanguageCode(string $code): string
-	{
-		if (!preg_match('/^[a-zA-Z]{2}(?:[_|-]{1}[a-zA-Z]{2}){0,1}$/', $code)) {
-			// none of format: "en", "en_US", "en-US" (case-insensitive)
-			throw new Exception(sprintf('Invalid iso-language code: %s', $code));
-		}
-
-		$l     = str_replace('-', '_', $code);
-		$parts = explode('_', $l);
-
-		return strtolower($parts[0]);
 	}
 
 }

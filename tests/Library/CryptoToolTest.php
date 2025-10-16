@@ -14,15 +14,15 @@ class CryptoToolTest extends TestCase
 
 	public function testEncrypt()
 	{
-		$enc = CryptoTool::encrypt('abc', 'def');
+		$enc = CryptoTool::encrypt('abc', 'def', CryptoTool::DEFAULT_ALGO, '1337-666-1337-00');
 
-		$this->assertEquals('n0+IakiChIfIkKUv9yslLw==', $enc);
+		$this->assertEquals('T0VOQqJc+iO603FRSu2fXA==', $enc);
 	}
 
 	public function testDecrypt()
 	{
-		$enc  = 'n0+IakiChIfIkKUv9yslLw==';
-		$data = CryptoTool::decrypt($enc, 'def');
+		$enc  = 'T0VOQqJc+iO603FRSu2fXA==';
+		$data = CryptoTool::decrypt($enc, 'def', CryptoTool::DEFAULT_ALGO, '1337-666-1337-00');
 
 		$this->assertEquals('abc', $data);
 	}

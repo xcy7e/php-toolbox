@@ -14,6 +14,7 @@ PHP toolbox library, containing useful everyday utilities (e.g., hashing-, encod
 - PathTool
 - ReflectionTool
 - SecurityTool
+- StringTool
 
 
 ## Installation
